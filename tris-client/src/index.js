@@ -25,6 +25,19 @@ function Square(props) {
   }
 
 
+function PlayerSelect(props){
+    return (
+      <>
+      <label for="player">Choose a player:</label>
+      <select name="player" id="player">
+        <option value="X">X</option>
+        <option value="O">O</option>
+      </select>
+      </>
+    );
+}
+
+
 class Board extends React.Component {
     constructor(props) {
         super(props);
@@ -56,18 +69,17 @@ class Board extends React.Component {
    }
 
   render() {
-    const winner = calculateWinner(this.state.squares);
-    let status;
-    if (winner) {
-      status = 'Winner: ' + winner;
-    } else {
-      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-    }
+    //const winner = calculateWinner(this.state.squares);
+    //let status;
+    //if (winner) {
+    //  status = 'Winner: ' + winner;
+    //} else {
+    //  status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+    //}
     //const status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
 
     return (
       <div>
-        <div className="status">{status}</div>
         <div className="board-row">
           {this.renderSquare(0)}
           {this.renderSquare(1)}
@@ -88,10 +100,15 @@ class Board extends React.Component {
   }
 }
 
+
+
 class Game extends React.Component {
   render() {
     return (
       <div className="game">
+        <div className="player">
+          <PlayerSelect />
+        </div>
         <div className="game-board">
           <Board />
         </div>
