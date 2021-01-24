@@ -29,7 +29,8 @@ function PlayerSelect(props){
     return (
       <>
       <label for="player">Choose a player:</label>
-      <select name="player" id="player">
+      <select name="player" id="player"
+        onChange={props.change} value={props.player}>
         <option value="X">X</option>
         <option value="O">O</option>
       </select>
@@ -39,46 +40,73 @@ function PlayerSelect(props){
 
 
 class Board extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-          squares: Array(9).fill(null),
-          xIsNext: true,
-        };
-      }
+  constructor(props) {
+    super(props);
+    this.state = {
+      id: null,
+      board: Array(9).fill(null),
+      state: null,
+      turn:null
+    };
+  }
 
-      handleClick(i) {
-        const squares = this.state.squares.slice();
-        if (calculateWinner(squares) || squares[i]) {
-            return;
-        }
-        squares[i] = this.state.xIsNext ? 'X' : 'O';
-        this.setState({
-            squares: squares,
-            xIsNext: !this.state.xIsNext,
-        });
-      }
+  componentDidMount() {
+    //TODO - rendi la url configurabile
+    const recipeUrl = 'http://francesco.local:8000/game/';
+    const postBody = {};
+    const requestMetadata = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(postBody)
+    };
+
+    fetch(recipeUrl, requestMetadata)
+      .then(res => res.json())
+      .then(game => {
+        console.log(game);
+        this.setState( game );
+      });
+  }
+
+
+  handleClick(i) {
+    const recipeUrl = `http://francesco.local:8000/game/${this.state.id}/`;
+    const postBody = {
+      player:this.props.player, 
+      position: i
+    };
+    const requestMetadata = {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(postBody)
+    };
+
+    fetch(recipeUrl, requestMetadata)
+      .then(res => res.json())
+      .then(game => {
+        console.log(game);
+        this.setState( game );
+      });
+  }
       
-    renderSquare(i) {
-      return (
-        <Square
-        value={this.state.squares[i]}
-        onClick={() => this.handleClick(i)}
-      />
-    );
-   }
+  renderSquare(i) {
+    return (
+      <Square
+      value={this.state.board[i]}
+      onClick={() => this.handleClick(i)}
+    />
+  );
+}
 
   render() {
-    //const winner = calculateWinner(this.state.squares);
-    //let status;
-    //if (winner) {
-    //  status = 'Winner: ' + winner;
-    //} else {
-    //  status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-    //}
-    //const status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-
+    console.log("state su render", this.state)
     return (
+      <>
+      <p>game id:{this.state.id}</p>
       <div>
         <div className="board-row">
           {this.renderSquare(0)}
@@ -96,21 +124,40 @@ class Board extends React.Component {
           {this.renderSquare(8)}
         </div>
       </div>
+      </>
     );
   }
 }
 
 
-
 class Game extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      player: "X"
+    };
+  }
+
+  changePlayer(event){
+    console.log("target", event.target)
+    console.log("value", event.target.value)
+    this.setState({player:event.target.value})
+  }
+
   render() {
     return (
       <div className="game">
         <div className="player">
-          <PlayerSelect />
+          <PlayerSelect 
+           player={this.state.player}
+           change={(event) => this.changePlayer(event)}
+          />
         </div>
+        
         <div className="game-board">
-          <Board />
+          <Board 
+          player={this.state.player}
+          />
         </div>
         <div className="game-info">
           <div>{/* status */}</div>
@@ -121,26 +168,6 @@ class Game extends React.Component {
   }
 }
 
-
-function calculateWinner(squares) {
-    const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-    for (let i = 0; i < lines.length; i++) {
-      const [a, b, c] = lines[i];
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        return squares[a];
-      }
-    }
-    return null;
-  }
 
 // ========================================
 
