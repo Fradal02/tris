@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
 import './index.css';
 
 
@@ -28,7 +29,7 @@ function Square(props) {
 function PlayerSelect(props){
     return (
       <>
-      <label for="player">Choose a player:</label>
+      <label htmlFor="player">Choose a player:</label>
       <select name="player" id="player"
         onChange={props.change} value={props.player}>
         <option value="X">X</option>
@@ -43,7 +44,7 @@ class Board extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      id: null,
+      id: props.id,
       board: Array(9).fill(null),
       state: null,
       turn:null
@@ -52,14 +53,14 @@ class Board extends React.Component {
 
   componentDidMount() {
     //TODO - rendi la url configurabile
-    const recipeUrl = 'http://francesco.local:8000/game/';
-    const postBody = {};
+    const recipeUrl = `http://francesco.local:8000/game/${this.state.id}/`;
+    //const postBody = {};
     const requestMetadata = {
-      method: 'POST',
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(postBody)
+      //body: JSON.stringify(postBody)
     };
 
     fetch(recipeUrl, requestMetadata)
@@ -130,12 +131,25 @@ class Board extends React.Component {
 }
 
 
+const AppRouter = () => (
+  <BrowserRouter>
+    <Route
+      path='/game/:game_id/'
+      render={props => <Game {...props} />}
+    />
+  </BrowserRouter>
+);
+
+
 class Game extends React.Component {
   constructor(props) {
     super(props);
+    const { game_id } = props.match.params;
     this.state = {
-      player: "X"
+      player: "X", 
+      game_id: game_id
     };
+    console.log("prova", this.state)
   }
 
   changePlayer(event){
@@ -156,7 +170,8 @@ class Game extends React.Component {
         
         <div className="game-board">
           <Board 
-          player={this.state.player}
+          player = {this.state.player}
+          id = {this.state.game_id}
           />
         </div>
         <div className="game-info">
@@ -172,6 +187,6 @@ class Game extends React.Component {
 // ========================================
 
 ReactDOM.render(
-  <Game />,
+  <AppRouter />,
   document.getElementById('root')
 );
