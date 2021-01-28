@@ -20,4 +20,8 @@ per eseguire il server:
 	uvicorn api_server:app --reload
 
 
+per eseguire l'interfaccia grafica del server:
+	
+	cd tris-client
+	npm start
 	
