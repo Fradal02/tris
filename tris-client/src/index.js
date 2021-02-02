@@ -1,9 +1,15 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { BrowserRouter, Route } from 'react-router-dom';
+import ReactDOM, { render } from 'react-dom';
+import { BrowserRouter, Route, Redirect } from 'react-router-dom';
 import './index.css';
 
 
+
+//
+//<button onClick={newGame}>
+//  Attiva Lasers
+//</button>
+//
 //class Square extends React.Component {
 //  render() {
 //    return (
@@ -51,6 +57,19 @@ class Board extends React.Component {
     };
   }
 
+//  newGame(){
+//    const recipeUrl = 'http://francesco.local:8000/game/';
+//    const postBody = {};
+//     const requestMetadata = {
+//      method: 'POST',
+//      headers: {
+//       'Content-Type': 'application/json'
+//      },
+//        body: JSON.stringify(postBody)
+//    };
+//  
+//  }
+//
   componentDidMount() {
     //TODO - rendi la url configurabile
     const recipeUrl = `http://francesco.local:8000/game/${this.state.id}/`;
@@ -137,9 +156,51 @@ const AppRouter = () => (
       path='/game/:game_id/'
       render={props => <Game {...props} />}
     />
+    <Route
+      path='/'
+      render={props => <Home {...props} />}
+    />
   </BrowserRouter>
 );
 
+
+class Home extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  newGame(){
+    const recipeUrl = `http://francesco.local:8000/game/`;
+    const postBody = {};
+    const requestMetadata = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(postBody)
+    };
+
+    fetch(recipeUrl, requestMetadata)
+      .then(res => res.json())
+      .then(game => {
+        console.log(game);
+        this.setState( game );
+        window.location = `/game/${game.id}`
+      });
+  }
+  
+  render() {
+    return (
+     <p>
+       <button onClick={() => this.newGame()}>
+        New Game
+        </button>
+     </p>
+    );
+  }
+
+}
+ 
 
 class Game extends React.Component {
   constructor(props) {
